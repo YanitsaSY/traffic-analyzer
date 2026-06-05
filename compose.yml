@@ -1,0 +1,30 @@
+services:
+  # Услуга 1: Базата данни (Redis)
+  redis_db:
+    image: redis:7-alpine
+    container_name: traffic_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - analyzer_network
+
+  # Услуга 2: Нашият Python генератор
+  traffic_generator:
+    build:
+      context: ./generator
+      dockerfile: Dockerfile
+    container_name: traffic_gen_app
+    restart: always
+    depends_on:
+      - redis_db
+    networks:
+      - analyzer_network
+
+volumes:
+  redis_data:
+
+networks:
+  analyzer_network:
+    driver: bridge
